@@ -10,16 +10,28 @@ import numpy as np
 import cv2
 import argparse
 
-def histMatch():
+def histMatch(imgOne, imgTwo, mode):
+    #Use color histograms (Homework 1) to determine matchup
+    #Determine the difference by directly comparing each bin
     return
 
-def edgeMatch():
+def edgeMatch(imgOne, imgTwo, mode):
+    #Feed the images through Canny Edge Detector provided by cv2
+    #Sizeorder is so we can determine which one was upscaled for some comparision logic
+    #TODO; Think about how to cope with possible edge shifts based on the rescaling
     return
 
-def morphMatch():
+def morphMatch(imgOne, imgTwo, mode):
+    #Pass the image into cv2 morphology (Similar to HW3 I suppose)
     return
 
-def comboMatch():
+def sumSquares(imgOne, imgTwo, mode):
+    #Process the image and determine how much difference exists between the two in terms of raw
+    #pixel information. 
+    
+    return
+
+def comboMatch(imgOne, imgTwo, mode):
     return
 
 
@@ -27,19 +39,38 @@ def comboMatch():
 #This includes resizing smaller image to match larger
 def main(imgI, imgII, method, sens):
     #Check to make sure we can access both images
-    imgOne = cv2.imread(imgI,0)
-    imgTwo = cv2.imread(imgII,0)
+    imgOne = cv2.imread(imgI)
+    imgTwo = cv2.imread(imgII)
     if imgOne is None:
-        print("Failed to read first image provided.")
+        print("Failed to read {}.".format(imgI))
         if imgTwo is None:
-            print("Failed to read second image provided.")
+            print("Failed to read {}.".format(imgII))
         return
     elif imgTwo is None:
-        print("Failed to read second image provided.")
+        print("Failed to read {}.".format(imgII))
         return
     
-    #Images were correctly read in; Determine which one is smaller,
-    #Then scale it up to match the size of the larger one.
+    #Images were correctly read in; Resize one of the images so both are the same size
+    #Need to determine which way to scale (Discuss as group? Mabye ask Professor for advice)
+    
+    #temporary code to resize the 2nd image to the dimensions of the 1st image, regardless of
+    #whichever was larger to begin with.
+    heightO, widthO, _  = imgOne.shape
+    #TODO: Consider how cv2.resize interpolation argument should be utilized
+    rImgTwo = cv2.resize(imgTwo, (heightO,widthO))
+    hT, wT, _ = imgTwo.shape
+    hTR, wTR, _ = rImgTwo.shape
+    print("Dimensions of images: \n"
+          "\tImage One:\t\t {} by {}\n"
+          "\tImage Two:\t\t {} by {}\n"
+          "\tResized Image Two:\t {} by {}\n".format(heightO, widthO, hT, wT, hTR,wTR)
+          )
+    
+    #Feed in the images into the code we have handy
+    cv2.imshow("ImgOne", imgOne)
+    cv2.imshow("Scaled ImgTwo", rImgTwo)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
     
     return
 
