@@ -25,7 +25,7 @@ def morphMatch(imgOne, imgTwo, mode):
     #Pass the image into cv2 morphology (Similar to HW3 I suppose)
     return
 
-def sumSquares(imgOne, imgTwo, mode):
+def sumSquaresMatch(imgOne, imgTwo, mode):
     #Process the image and determine how much difference exists between the two in terms of raw
     #pixel information. 
     
@@ -33,6 +33,23 @@ def sumSquares(imgOne, imgTwo, mode):
 
 def comboMatch(imgOne, imgTwo, mode):
     return
+
+
+#Helper function- takes in dimensions of image and a count for # of points
+#Returns list of tuples (x,y), each which are likely unique.
+#Idea- duplicate point check in set(), which is O(1) lookup time
+def randPoints(height, width, count):
+    coords = set()
+    randPoints = []
+    i = 0
+    while i < count:
+        x = random.randrange(height)
+        y = random.randrange(width)
+        if (x,y) in coords: continue
+        randPoints.append((x,y))
+        i += 1
+    return randPoints
+
 
 
 #Central function, designed to handle bulk of logic
