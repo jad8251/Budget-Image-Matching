@@ -6,6 +6,8 @@ Created on Sun Mar 18 13:57:17 2018
 
 @author: Jason Durek
 """
+import random
+
 import numpy as np
 import cv2
 import argparse
@@ -19,6 +21,40 @@ def edgeMatch(imgOne, imgTwo, mode):
     #Feed the images through Canny Edge Detector provided by cv2
     #Sizeorder is so we can determine which one was upscaled for some comparision logic
     #TODO; Think about how to cope with possible edge shifts based on the rescaling
+    
+    #Create Canny Edge images
+    cannyOne = cv2.Canny(imgOne, 100, 200)
+    cannyTwo = cv2.Canny(imgTwo, 100, 200)
+    
+    cv2.imshow("Canny ImgOne", cannyOne)
+    cv2.imshow("Canny ImgTwo", cannyTwo)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    height, width, _ = imgOne.shape
+    
+    if mode == "rand":
+        percentVal = .2
+        print("Generating random points for Edge Detector...")
+        totalPoints = height * width * percentVal #Need to research how many should be sampled
+        rPts = randPoints(height,width, totalPoints)
+        totalDiff = 0
+        for point in rPts:
+            pX, pY = point
+            if(cannyOne[pX,pY] != cannyTwo[pX,pY]):
+                totalDiff += 1
+        print("Number of points sampled: {}, which is {}%".format(totalPoints,
+              percentVal*100))
+        print("Edge Random Sample- Difference count:{}".format(totalDiff))
+        print("Edge Random Sample- Percentage Diff:{}".format(totalDiff/totalPoints))
+    else:
+        print("Passing over entire image for Edge Comparision...")
+        totalDiff = 0
+        for i in range(height):
+            for j in range(width):
+                if(cannyOne[i,j] != cannyTwo[i,j]):
+                    totalDiff += 1
+        print("Edges Different points: {}".format(totalDiff))
+        print("Total Difference %wise: {}".format(totalDiff/(height*width*1.0)))
     return
 
 def morphMatch(imgOne, imgTwo, mode):
@@ -28,7 +64,25 @@ def morphMatch(imgOne, imgTwo, mode):
 def sumSquaresMatch(imgOne, imgTwo, mode):
     #Process the image and determine how much difference exists between the two in terms of raw
     #pixel information. 
-    
+    if mode == "rand":
+        print("Generating random points and comparing...")
+    else:
+        print("Passing over entire image...")
+        height, width, _ = imgOne.shape
+        totalDiff = 0
+        for i in range(height):
+            for j in range(width):
+                #Compare the difference between the images at coordinates
+                currDiff = 0.0
+                rDiff = abs(int(imgOne[i,j][0]) - int(imgTwo[i,j][0]))
+                gDiff = abs(int(imgOne[i,j][1]) - int(imgTwo[i,j][1]))
+                bDiff = abs(int(imgOne[i,j][2]) - int(imgTwo[i,j][2]))
+                currDiff += rDiff + bDiff + gDiff
+                #Not sure how to really judge "different colors"
+                #if currDiff > 10:
+                totalDiff += currDiff
+
+        print("Total Difference: {}".format(totalDiff/255/3))
     return
 
 def comboMatch(imgOne, imgTwo, mode):
@@ -47,9 +101,9 @@ def randPoints(height, width, count):
         y = random.randrange(width)
         if (x,y) in coords: continue
         randPoints.append((x,y))
+        coords.add((x,y))
         i += 1
     return randPoints
-
 
 
 #Central function, designed to handle bulk of logic
@@ -74,7 +128,9 @@ def main(imgI, imgII, method, sens):
     #whichever was larger to begin with.
     heightO, widthO, _  = imgOne.shape
     #TODO: Consider how cv2.resize interpolation argument should be utilized
-    rImgTwo = cv2.resize(imgTwo, (heightO,widthO))
+    #Using INTER_AREA for the time being, as the others had some noticable jags on edges
+    #From simply eyeballing the two images side by side
+    rImgTwo = cv2.resize(imgTwo, (heightO,widthO), interpolation = cv2.INTER_AREA)
     hT, wT, _ = imgTwo.shape
     hTR, wTR, _ = rImgTwo.shape
     print("Dimensions of images: \n"
@@ -88,6 +144,9 @@ def main(imgI, imgII, method, sens):
     cv2.imshow("Scaled ImgTwo", rImgTwo)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+    
+    sumSquaresMatch(imgOne, rImgTwo, "Normal")
+    edgeMatch(imgOne, rImgTwo, "rand")
     
     return
 
