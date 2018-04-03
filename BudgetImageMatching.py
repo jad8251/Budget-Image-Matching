@@ -12,10 +12,22 @@ import numpy as np
 import cv2
 import argparse
 
+"""NOTES: edgeMatch and morphMatch do not account for color; They generate pure
+black/white images, absolute binary with nothing in between. This means
+images with only the color scales shifted around equally could still report 
+the same edges.
+"""
+
 def histMatch(imgOne, imgTwo, mode):
     #Use color histograms (Homework 1) to determine matchup
     #Determine the difference by directly comparing each bin
-    return
+    if mode == "rand":
+        #Build histogram using only randomly selected points
+        return
+    else:
+        #Build full histogram (Use HW 1 as reference for how to set this up)
+        return
+    
 
 def edgeMatch(imgOne, imgTwo, mode):
     #Feed the images through Canny Edge Detector provided by cv2
@@ -42,7 +54,7 @@ def edgeMatch(imgOne, imgTwo, mode):
             pX, pY = point
             if(cannyOne[pX,pY] != cannyTwo[pX,pY]):
                 totalDiff += 1
-        print("Number of points sampled: {}, which is {}%".format(totalPoints,
+        print("Number of points sampled: {}, which is {}% of points".format(totalPoints,
               percentVal*100))
         print("Edge Random Sample- Difference count:{}".format(totalDiff))
         print("Edge Random Sample- Percentage Diff:{}".format(totalDiff/totalPoints))
@@ -55,11 +67,21 @@ def edgeMatch(imgOne, imgTwo, mode):
                     totalDiff += 1
         print("Edges Different points: {}".format(totalDiff))
         print("Total Difference %wise: {}".format(totalDiff/(height*width*1.0)))
-    return
+    return totalDiff #Change to the % Accuracy? Could be worth looking into.
 
 def morphMatch(imgOne, imgTwo, mode):
-    #Pass the image into cv2 morphology (Similar to HW3 I suppose)
-    return
+    #Pass the image into cv2 morphology (Similar to HW3, minus the detection)
+    #Just apply the cv2.morphology ex
+    #Could generate a list of contours, but that's probably not needed- we can
+    #just compare the black/white image, similar to the Canny Edge result.
+    #This makes it easier to just separate into a binary-choice on if it matches or not
+    if mode == "rand":
+        #Build histogram using only randomly selected points
+        return
+    else:
+        #Build full histogram (Use HW 1 as reference for how to set this up)
+        return
+
 
 def sumSquaresMatch(imgOne, imgTwo, mode):
     #Process the image and determine how much difference exists between the two in terms of raw
