@@ -118,7 +118,13 @@ def morphMatch(imgOne, imgTwo, mode):
         #Build histogram using only randomly selected points
         return
     else:
-        #Build full histogram (Use HW 1 as reference for how to set this up)
+        #unfinished implementation, generating list of contours (but doesn't actually compare them)
+        img1_gray = cv2.cvtColor(imageOne, cv2.COLOR_BGR2GRAY)
+        img2_gray = cv2.cvtColor(imageTwo, cv2.COLOR_BGR2GRAY)
+        img1_bw = cv2.adaptiveThreshold(img1_gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 101, 1)
+        img2_bw = cv2.adaptiveThreshold(img2_gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 101, 1)
+        contours1, _ = cv2.findContours(img1_bw.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        contours2, _ = cv2.findContours(img2_bw.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         return
 
 
