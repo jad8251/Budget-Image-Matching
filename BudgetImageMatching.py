@@ -7,6 +7,7 @@ Created on Sun Mar 18 13:57:17 2018
 @author: Jason Durek
 """
 import random
+import time
 
 import numpy as np
 import cv2
@@ -197,7 +198,7 @@ def main(imgI, imgII, method, sens):
     #TODO: Consider how cv2.resize interpolation argument should be utilized
     #Using INTER_AREA for the time being, as the others had some noticable jags on edges
     #From simply eyeballing the two images side by side
-    rImgTwo = cv2.resize(imgTwo, (heightO,widthO), interpolation = cv2.INTER_AREA)
+    rImgTwo = cv2.resize(imgTwo, (widthO,heightO), interpolation = cv2.INTER_AREA)
     hT, wT, _ = imgTwo.shape
     hTR, wTR, _ = rImgTwo.shape
     print("Dimensions of images: \n"
@@ -206,14 +207,52 @@ def main(imgI, imgII, method, sens):
           "\tResized Image Two:\t {} by {}\n".format(heightO, widthO, hT, wT, hTR,wTR)
           )
     
+    #Creates Blurred images for testing
+    blurOne = cv2.blur(imgOne, (3,3))
+    blurTwo = cv2.blur(rImgTwo, (3,3))
+    
     #Feed in the images into the code we have handy
     cv2.imshow("ImgOne", imgOne)
+    cv2.imshow("ImgTwo", imgTwo)
     cv2.imshow("Scaled ImgTwo", rImgTwo)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     
-    sumSquaresMatch(imgOne, rImgTwo, "Normal")
-    edgeMatch(imgOne, rImgTwo, "exp")
+    #sumSquaresMatch(imgOne, rImgTwo, "Normal")
+    
+    
+    
+    start = time.time()
+    edgeMatch(imgOne, rImgTwo, "Normal")
+    end = time.time()
+    print(end-start)
+    
+#    start = time.time()
+#    edgeMatch(imgOne, rImgTwo, "rand")
+#    end = time.time()
+#    print(end-start)
+
+#    start = time.time()
+#    edgeMatch(imgOne, rImgTwo, "exp")
+#    end = time.time()
+#    print(end-start)
+    
+    print("\nBlurred Image to Edge func\n")
+    start = time.time()
+    edgeMatch(blurOne, blurTwo, "Normal")
+    end = time.time()
+    print(end-start)
+    
+#    print("")
+#    start = time.time()
+#    edgeMatch(blurOne, blurTwo, "rand")
+#    end = time.time()
+#    print(end - start)
+
+#    start = time.time()
+#    edgeMatch(blurOne, blurTwo, "exp")
+#    end = time.time()
+#    print(end-start)
     
     return
 
