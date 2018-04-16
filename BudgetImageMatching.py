@@ -39,11 +39,12 @@ def edgeMatch(imgOne, imgTwo, mode):
     cannyOne = cv2.Canny(imgOne, 100, 200)
     cannyTwo = cv2.Canny(imgTwo, 100, 200)
     
-    #cv2.imshow("Canny ImgOne", cannyOne)
-    #cv2.imshow("Canny ImgTwo", cannyTwo)
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
+#    cv2.imshow("Canny ImgOne", cannyOne)
+#    cv2.imshow("Canny ImgTwo", cannyTwo)
+#    cv2.waitKey(0)
+#    cv2.destroyAllWindows()
     height, width, _ = imgOne.shape
+    print("Height:{} \t Width:{}".format(height,width))
     
     if mode == "rand":
         percentVal = .2
@@ -53,7 +54,9 @@ def edgeMatch(imgOne, imgTwo, mode):
         totalDiff = 0
         for point in rPts:
             pX, pY = point
+            #print("Img1:{} \t Img2:{}".format(cannyOne[pX,pY], cannyTwo[pX,pY]))
             if(cannyOne[pX,pY] != cannyTwo[pX,pY]):
+                
                 totalDiff += 1
         print("Number of points sampled: {}, which is {}% of points".format(totalPoints,
               percentVal*100))
@@ -64,36 +67,65 @@ def edgeMatch(imgOne, imgTwo, mode):
     #Experimental mode- We pick random points, create a new image from those
     #And feed it to Canny Edge
     elif mode == "exp":
-        percentVal = .2
+        print("Running experimental Edge comparision: Random sample before Canny")
+        percentVal = .002 #2 in a thousand points randomly chosen
+        #The percentage for this mode is far lower, due to it pulling points around it
+        
         numPoints = (int)(height * width * percentVal)
-        #Creating image 1-pixel tall, basically a 1-D array to feed to canny
-        blankImg1 = np.zeros((1,numPoints,3), np.uint8)
-        blankImg2 = np.zeros((1,numPoints,3), np.uint8)
+        #Creating temporary sub-images
+        blankImg1 = np.zeros((5,5,3), np.uint8)
+        blankImg2 = np.zeros((5,5,3), np.uint8)
         rPts = randPoints(height, width, numPoints)
         i = 0
+        totalDiff = 0
+        totalPoints = 0
+        modTotal = 0
         for point in rPts:
             pX, pY = point
-            blankImg1[0,i] = imgOne[pX,pY]
-            blankImg2[0,i] = imgTwo[pX,pY]
-            i += 1
-        expCan1 = cv2.Canny(blankImg1,100,200)
-        expCan2 = cv2.Canny(blankImg2,100,200)
+            for k in range(5):
+                for l in range(5):
+                    if(pX + k - 2 < 0):
+                        blankImg1[k,l] = 0
+                        blankImg1[k,l] = 0
+                    elif(pX + k - 2 >= height):
+                        blankImg1[k,l] = 0
+                        blankImg2[k,l] = 0
+                    elif(pY + l - 2 < 0):
+                        blankImg1[k,l] = 0
+                        blankImg2[k,l] = 0
+                    elif(pY + l - 2 >= width):
+                        blankImg1[k,l] = 0
+                        blankImg2[k,l] = 0
+                    else:
+                        blankImg1[k,l] = imgOne[(pX + k - 2),(pY + l - 2)]
+                        blankImg2[k,l] = imgTwo[(pX + k - 2),(pY + l - 2)]
+            #Feed the resulting images into Canny
+            expCan1 = cv2.Canny(blankImg1, 100,200)
+            expCan2 = cv2.Canny(blankImg2, 100,200)
+            #Compare these small-images for accuracy
+            
+            for x in range(5):
+                for y in range(5):
+                    totalPoints += 1
+                    if(expCan1[x,y] == 255 and expCan2[x,y] == 255):
+                        modTotal += 1
+                        continue
+                    if(expCan1[x,y] != expCan2[x,y]):
+                        totalDiff += 1
+                        modTotal += 1
         #cv2.imshow("Canny Expermental 1", expCan1)
         #cv2.imshow("Canny Expermental 2", expCan2)
         #cv2.waitKey(0)
         #cv2.destroyAllWindows()
         
-        #Compare results of the 2 images and see how accurate we are
-        #Canny on the full image is ~5% error with current resizing, with 1% range on rand
-        totalDiff = 0
-        for i in range(numPoints):
-            if(expCan1[0,i] != expCan2[0,i]):
-                totalDiff += 1
+        percPt = totalPoints / (modTotal*1.0)
         
-        print("Number of points sampled: {}, which is {}% of points".format(numPoints,
-              percentVal*100))
-        print("Expermental Random Edge - Difference count:{}".format(totalDiff))
-        print("Expermental Random Edge- Percentage Diff:{}".format(totalDiff * 1.0/numPoints))
+        
+        
+        print("Number of points sampled: {}, which is {}% of points".format(totalPoints, 
+              format(percPt,'.3f')))
+        print("Expermental Random Edge - Difference count:{}".format(modTotal))
+        print("Expermental Random Edge- Percentage Diff:{}".format(totalDiff * 1.0/modTotal))
         
         return
     
@@ -101,13 +133,21 @@ def edgeMatch(imgOne, imgTwo, mode):
     else:
         print("Passing over entire image for Edge Comparision...")
         totalDiff = 0
+        modTotal = 0
         for i in range(height):
             for j in range(width):
+#                print(i,j)
+                if(cannyOne[i,j] == 255 and cannyTwo[i,j] == 255):
+                    modTotal += 1
+                    continue #Black matching black is no useful ifnormation
                 if(cannyOne[i,j] != cannyTwo[i,j]):
                     totalDiff += 1
+                    modTotal += 1
+        print(modTotal)
         print("Edges Different points: {}".format(totalDiff))
-        print("Total Difference %wise: {}".format(totalDiff/(height*width*1.0)))
+        print("Total Difference %wise: {}".format(totalDiff/(modTotal*1.0)))
         return totalDiff #Change to the % Accuracy? Could be worth looking into.
+
 
 def morphMatch(imgOne, imgTwo, mode):
     #Pass the image into cv2 morphology (Similar to HW3, minus the detection)
