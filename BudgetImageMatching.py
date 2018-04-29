@@ -5,6 +5,8 @@ Initial draft of budget-image matching program
 Created on Sun Mar 18 13:57:17 2018
 
 @author: Jason Durek
+@author: Connor Coval
+@author: Chris Grate
 """
 import random
 import time
@@ -12,6 +14,7 @@ import time
 import numpy as np
 import cv2
 import argparse
+from matplotlib import pyplot as plt
 
 """NOTES: edgeMatch and morphMatch do not account for color; They generate pure
 black/white images, absolute binary with nothing in between. This means
@@ -23,12 +26,67 @@ def histMatch(imgOne, imgTwo, mode):
     #Use color histograms (Homework 1) to determine matchup
     #Determine the difference by directly comparing each bin
     if mode == "rand":
-        #Build histogram using only randomly selected points
-        return
+        return 
+        
     else:
-        #Build full histogram (Use HW 1 as reference for how to set this up)
-        return
-    
+        
+        #Hold current time (when function is run - hence the start time)
+        startTime = time.time()
+        #Use color histograms (Homework 1) to determine matchup
+        color = ('b','g','r')
+        
+        #Create color histogram for each image, from iterating through each pixel
+        #value - produces a 256x1 array of pixel values.
+
+
+        #Commented out, used for testing purposes of getting a histogram
+        #equalized version of both images - would just have to change
+        #name of output file, and the image you're equalizing
+        #img_hsv = cv2.cvtColor(imgTwo,cv2.COLOR_BGR2HSV)
+        #img_hsv[:,:,2] = cv2.equalizeHist(img_hsv[:,:,2])
+        #img_eq = cv2.cvtColor(img_hsv, cv2.COLOR_HSV2BGR)
+        #newfile = '.test2'+ '_hsveq.jpg'
+        #cv2.imwrite(newfile,img_eq)
+  
+        for x,y in enumerate (color):
+            histOne = cv2.calcHist([imgOne],[x],None,[256],[0,256])
+            histTwo = cv2.calcHist([imgTwo],[x],None,[256],[0,256])
+
+            #Create and show the histogram for Image 1
+            plt.figure(1)
+            plt.subplot(211)
+            plt.plot(histOne,color = y)
+            plt.xlim([0,256])
+
+            #Create and show the histogram for image 2
+            plt.figure(2)
+            plt.subplot(212)
+            plt.plot(histTwo,color = y)
+            plt.xlim([0,256])
+        plt.show()
+
+        #256 is the size of the histogram lists.
+
+        #The number of differences found between the histogram lists
+        #And their intesity counts
+        diffCount = 0
+        for x in range(0,256):
+            if(histOne[x] != histTwo[x]):
+                diffCount+=1
+            else:
+                continue
+
+        #Hold the current time (after the function has performed its actions)
+        endTime = time.time()
+
+    #Calculate the total time taken for function to perform its tasks
+    elapsedTime = endTime - startTime
+        
+    #Hold the diffrence percentage, essentially the percentage of pixel values
+    #between the two images that were different between the histograms.
+    diffPercent = ((diffCount/256)*100)
+    print("Histogram Matching - Difference count: ",+diffCount)
+    print("Histogram Matching - Percentage Difference: ",+ diffPercent)
 
 def edgeMatch(imgOne, imgTwo, mode):
     #Feed the images through Canny Edge Detector provided by cv2
@@ -261,11 +319,18 @@ def main(imgI, imgII, method, sens):
     #sumSquaresMatch(imgOne, rImgTwo, "Normal")
     
     
+    start = time.time()
+    histMatch(imgOne,rImgTwo,"Normal")
+    end = time.time()
+    print("Elapsed Time HistMatch: " ,end-start)
+    print()
+
     
     start = time.time()
     edgeMatch(imgOne, rImgTwo, "Normal")
     end = time.time()
-    print(end-start)
+    print("Elapsed Time EdgeMatch: " ,end-start)
+    print()
     
 #    start = time.time()
 #    edgeMatch(imgOne, rImgTwo, "rand")
@@ -281,7 +346,8 @@ def main(imgI, imgII, method, sens):
     start = time.time()
     edgeMatch(blurOne, blurTwo, "Normal")
     end = time.time()
-    print(end-start)
+    print("Elapsed Time EdgeMatch (Blurred): ",end-start)
+    print()
     
 #    print("")
 #    start = time.time()
