@@ -210,20 +210,121 @@ def edgeMatch(imgOne, imgTwo, mode):
 def morphMatch(imgOne, imgTwo, mode):
     #Pass the image into cv2 morphology (Similar to HW3, minus the detection)
     #Just apply the cv2.morphology ex
-    #Could generate a list of contours, but that's probably not needed- we can
-    #just compare the black/white image, similar to the Canny Edge result.
-    #This makes it easier to just separate into a binary-choice on if it matches or not
+    #compare the black/white image, similar to the Canny Edge result.
+    
+    height, width, _ = imgOne.shape
+    modTotal = 0
+    totalDiff = 0
     if mode == "rand":
-        #Build histogram using only randomly selected points
+        
         return
     else:
-        #unfinished implementation, generating list of contours (but doesn't actually compare them)
+        # unfinalized implementation; uses a variety of morphological procedures, which is useful for
+        # comparing morphological techniques
+        
         img1_gray = cv2.cvtColor(imgOne, cv2.COLOR_BGR2GRAY)
         img2_gray = cv2.cvtColor(imgTwo, cv2.COLOR_BGR2GRAY)
         img1_bw = cv2.adaptiveThreshold(img1_gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 101, 1)
         img2_bw = cv2.adaptiveThreshold(img2_gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 101, 1)
-        contours1, _ = cv2.findContours(img1_bw.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-        contours2, _ = cv2.findContours(img2_bw.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+
+        kernel = np.ones((3,3),np.uint8)
+        erode1 = cv2.erode(img1_bw, kernel)
+        erode2 = cv2.erode(img2_bw, kernel)
+        cv2.imshow('erode1',erode1)
+        cv2.imshow('erode2',erode2)
+
+        for i in range(height):
+            for j in range(width):
+                if(erode1[i,j] == erode2[i,j]):
+                    modTotal += 1
+                else:
+                    totalDiff += 1
+                    modTotal += 1
+        print("Different points for erode comparison:: {}".format(totalDiff))
+        print("Total Difference %wise: {}".format(totalDiff/(modTotal*1.0) * 100) + "\n")
+        modTotal = 0
+        totalDiff = 0
+
+        dilate1 = cv2.dilate(img1_bw, kernel)
+        dilate2 = cv2.dilate(img2_bw, kernel)
+        cv2.imshow('dilate1',dilate1)
+        cv2.imshow('dilate2',dilate2)
+        for i in range(height):
+            for j in range(width):
+                if(dilate1[i,j] == dilate2[i,j]):
+                    modTotal += 1
+                else:
+                    totalDiff += 1
+                    modTotal += 1
+        print("Different points for dilate comparison:: {}".format(totalDiff))
+        print("Total Difference %wise: {}".format(totalDiff/(modTotal*1.0) * 100)+ "\n")
+        modTotal = 0
+        totalDiff = 0
+
+        closing1 = cv2.morphologyEx(img1_bw, cv2.MORPH_CLOSE, kernel)
+        closing2 = cv2.morphologyEx(img2_bw, cv2.MORPH_CLOSE, kernel)
+        cv2.imshow('closing1',closing1)
+        cv2.imshow('closing2',closing2)
+        for i in range(height):
+            for j in range(width):
+                if(closing1[i,j] == closing2[i,j]):
+                    modTotal += 1
+                else:
+                    totalDiff += 1
+                    modTotal += 1
+        print("Different points for closing comparison:: {}".format(totalDiff))
+        print("Total Difference %wise: {}".format(totalDiff/(modTotal*1.0) * 100)+ "\n")
+        modTotal = 0
+        totalDiff = 0
+
+        open1 = cv2.morphologyEx(img1_bw, cv2.MORPH_OPEN, kernel)
+        open2 = cv2.morphologyEx(img2_bw, cv2.MORPH_OPEN, kernel)
+        cv2.imshow('open1',open1)
+        cv2.imshow('open2',open2)
+        for i in range(height):
+            for j in range(width):
+                if(open1[i,j] == open2[i,j]):
+                    modTotal += 1
+                else:
+                    totalDiff += 1
+                    modTotal += 1
+        print("Different points for open comparison:: {}".format(totalDiff))
+        print("Total Difference %wise: {}".format(totalDiff/(modTotal*1.0) * 100)+ "\n")
+        modTotal = 0
+        totalDiff = 0
+
+        grad1 = cv2.morphologyEx(img1_bw, cv2.MORPH_GRADIENT, kernel)
+        grad2 = cv2.morphologyEx(img2_bw, cv2.MORPH_GRADIENT, kernel)
+        cv2.imshow('grad1',grad1)
+        cv2.imshow('grad2',grad2)
+        for i in range(height):
+            for j in range(width):
+                if(grad1[i,j] == grad2[i,j]):
+                    modTotal += 1
+                else:
+                    totalDiff += 1
+                    modTotal += 1
+        print("Different points for gradient comparison: {}".format(totalDiff))
+        print("Total Difference %wise: {}".format(totalDiff/(modTotal*1.0) * 100)+ "\n")
+        modTotal = 0
+        totalDiff = 0
+
+        opengrad1 = cv2.morphologyEx(grad1, cv2.MORPH_OPEN, kernel)
+        opengrad2 = cv2.morphologyEx(grad2, cv2.MORPH_OPEN, kernel)
+        cv2.imshow('opengrad1',opengrad1)
+        cv2.imshow('opengrad2',opengrad2)
+        for i in range(height):
+            for j in range(width):
+                if(opengrad1[i,j] == opengrad2[i,j]):
+                    modTotal += 1
+                else:
+                    totalDiff += 1
+                    modTotal += 1
+        print("Different points for open + gradient comparison: {}".format(totalDiff))
+        print("Total Difference %wise: {}".format(totalDiff/(modTotal*1.0) * 100)+ "\n")
+
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
         return
 
 
