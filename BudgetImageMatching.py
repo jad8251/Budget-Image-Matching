@@ -419,19 +419,38 @@ def main(imgI, imgII, method, sens):
     
     #sumSquaresMatch(imgOne, rImgTwo, "Normal")
     
+    inputArg = method.lower()
+    if(inputArg == "canny"):
+        start = time.time()
+        edgeMatch(imgOne, rImgTwo, "Normal")
+        end = time.time()
+        print("Elapsed Time Canny Fullscan:{} ".format(end-start))
+        start = time.time()
+        edgeMatch(imgOne, rImgTwo, "rand")
+        end = time.time()
+        print("Elapsed Time Canny RandScan:{} ".format(end-start))
+    elif(inputArg == "morph"):
+        start = time.time()
+        morphMatch(blurOne, blurTwo, "")
+        end = time.time()
+        print("Elapsed Time Morphology Match:{} ".format(end-start))
+    elif(inputArg == "hist"):
+        start = time.time()
+        histMatch(imgOne,rImgTwo,"Normal")
+        end = time.time()
+        print("Elapsed Time HistMatch: " ,end-start)
+        print()
+    else:
+        print("Invalid input provided: must be one of following: 'canny', 'morph', 'hist'")
     
-    start = time.time()
-    histMatch(imgOne,rImgTwo,"Normal")
-    end = time.time()
-    print("Elapsed Time HistMatch: " ,end-start)
-    print()
+    
 
     
-    start = time.time()
-    edgeMatch(imgOne, rImgTwo, "Normal")
-    end = time.time()
-    print("Elapsed Time EdgeMatch: " ,end-start)
-    print()
+    #start = time.time()
+    #edgeMatch(imgOne, rImgTwo, "Normal")
+    #end = time.time()
+    #print("Elapsed Time EdgeMatch: " ,end-start)
+    #print()
     
 #    start = time.time()
 #    edgeMatch(imgOne, rImgTwo, "rand")
@@ -443,12 +462,12 @@ def main(imgI, imgII, method, sens):
 #    end = time.time()
 #    print(end-start)
     
-    print("\nBlurred Image to Edge func\n")
-    start = time.time()
-    edgeMatch(blurOne, blurTwo, "Normal")
-    end = time.time()
-    print("Elapsed Time EdgeMatch (Blurred): ",end-start)
-    print()
+#    print("\nBlurred Image to Edge func\n")
+#    start = time.time()
+#    edgeMatch(blurOne, blurTwo, "Normal")
+#    end = time.time()
+#    print("Elapsed Time EdgeMatch (Blurred): ",end-start)
+#    print()
     
 #    print("")
 #    start = time.time()
@@ -474,7 +493,9 @@ def argParser():
     parser.add_argument('method',
                 help = ('Method to use in order to decide if files are a match.\n'
                         '\tAvailable methods are as follows\n'
-                                
+                        'canny : Canny Edge Detector used to match images\n'
+                        'hist : Color Histogram method of matching\n'
+                        'morph: Morphology method of matching\n'     
                         ))
     parser.add_argument('-sens','--sensitivity', required = False,
                 help = ('Optional way to change how strict the matching is.'
