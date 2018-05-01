@@ -230,8 +230,6 @@ def morphMatch(imgOne, imgTwo, mode):
         kernel = np.ones((3,3),np.uint8)
         erode1 = cv2.erode(img1_bw, kernel)
         erode2 = cv2.erode(img2_bw, kernel)
-        cv2.imshow('erode1',erode1)
-        cv2.imshow('erode2',erode2)
 
         for i in range(height):
             for j in range(width):
@@ -247,8 +245,7 @@ def morphMatch(imgOne, imgTwo, mode):
 
         dilate1 = cv2.dilate(img1_bw, kernel)
         dilate2 = cv2.dilate(img2_bw, kernel)
-        cv2.imshow('dilate1',dilate1)
-        cv2.imshow('dilate2',dilate2)
+
         for i in range(height):
             for j in range(width):
                 if(dilate1[i,j] == dilate2[i,j]):
@@ -263,8 +260,7 @@ def morphMatch(imgOne, imgTwo, mode):
 
         closing1 = cv2.morphologyEx(img1_bw, cv2.MORPH_CLOSE, kernel)
         closing2 = cv2.morphologyEx(img2_bw, cv2.MORPH_CLOSE, kernel)
-        cv2.imshow('closing1',closing1)
-        cv2.imshow('closing2',closing2)
+
         for i in range(height):
             for j in range(width):
                 if(closing1[i,j] == closing2[i,j]):
@@ -279,8 +275,7 @@ def morphMatch(imgOne, imgTwo, mode):
 
         open1 = cv2.morphologyEx(img1_bw, cv2.MORPH_OPEN, kernel)
         open2 = cv2.morphologyEx(img2_bw, cv2.MORPH_OPEN, kernel)
-        cv2.imshow('open1',open1)
-        cv2.imshow('open2',open2)
+
         for i in range(height):
             for j in range(width):
                 if(open1[i,j] == open2[i,j]):
@@ -295,8 +290,7 @@ def morphMatch(imgOne, imgTwo, mode):
 
         grad1 = cv2.morphologyEx(img1_bw, cv2.MORPH_GRADIENT, kernel)
         grad2 = cv2.morphologyEx(img2_bw, cv2.MORPH_GRADIENT, kernel)
-        cv2.imshow('grad1',grad1)
-        cv2.imshow('grad2',grad2)
+
         for i in range(height):
             for j in range(width):
                 if(grad1[i,j] == grad2[i,j]):
@@ -311,8 +305,7 @@ def morphMatch(imgOne, imgTwo, mode):
 
         opengrad1 = cv2.morphologyEx(grad1, cv2.MORPH_OPEN, kernel)
         opengrad2 = cv2.morphologyEx(grad2, cv2.MORPH_OPEN, kernel)
-        cv2.imshow('opengrad1',opengrad1)
-        cv2.imshow('opengrad2',opengrad2)
+
         for i in range(height):
             for j in range(width):
                 if(opengrad1[i,j] == opengrad2[i,j]):
@@ -322,9 +315,6 @@ def morphMatch(imgOne, imgTwo, mode):
                     modTotal += 1
         print("Different points for open + gradient comparison: {}".format(totalDiff))
         print("Total Difference %wise: {}".format(totalDiff/(modTotal*1.0) * 100)+ "\n")
-
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
         return
 
 
