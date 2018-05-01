@@ -216,10 +216,10 @@ def morphMatch(imgOne, imgTwo, mode):
     modTotal = 0
     totalDiff = 0
     if mode == "rand":
-        
+        # rand mode not supported for morphMatch
         return
     else:
-        # unfinalized implementation; uses a variety of morphological procedures, which is useful for
+        # Uses a variety of morphological procedures, which is useful for
         # comparing morphological techniques
         
         img1_gray = cv2.cvtColor(imgOne, cv2.COLOR_BGR2GRAY)
